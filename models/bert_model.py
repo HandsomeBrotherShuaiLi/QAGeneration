@@ -24,7 +24,7 @@ import numpy as np
 from keras_bert import (load_trained_model_from_checkpoint,
                         get_pretrained, PretrainedList,
                         get_checkpoint_paths, Tokenizer)
-from dataloader import Dataloader
+from models.utils.dataloader import Dataloader_v1
 
 
 def download_pretrained_bert(language_backbone='chinese_wwm_base'):
@@ -68,7 +68,7 @@ class QAGenerator(object):
                 token = line.strip()
                 token_dict[token] = len(token_dict)
         self.tokenizer = Tokenizer(token_dict)
-        self.dataloader = Dataloader(tokenizer=self.tokenizer,
+        self.dataloader = Dataloader_v1(tokenizer=self.tokenizer,
                                      batch_size=self.bs, split_rate=0.1)
 
     def build_model(self):
