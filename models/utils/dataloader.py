@@ -219,9 +219,10 @@ class Dataloader_v2(object):
                 start = (start + self.batch_size) % len(index)
         else:
             while True:
-                batch_inputs_for_text = []
-                batch_outputs = []
+                batch_encoder_inputs = []
+                batch_target_outputs = []
                 batch_question = []
+                batch_decoder_inputs = []
                 if start + self.batch_size < len(index):
                     batch_index = index[start:(start + self.batch_size)]
                 else:
@@ -234,16 +235,23 @@ class Dataloader_v2(object):
                     for z in range(new_question_index[0], new_question_index[1]):
                         question_code[z] = 1
                     batch_question.append(question_code)
-                    batch_inputs_for_text.append(text_ids)
-                    batch_outputs.append(question_ids)
-                batch_inputs_for_text = np.array(pad_sequences(batch_inputs_for_text,
-                                                               padding='post', truncating='post'))
+                    batch_encoder_inputs.append(text_ids)
+                    batch_decoder_inputs.append(question_ids)
+                    batch_target_outputs.append(question_ids[1:] + [0])
+                batch_encoder_inputs = np.array(pad_sequences(batch_encoder_inputs,
+                                                              padding='post', truncating='post'))
+
+                batch_decoder_inputs = np.array(pad_sequences(batch_decoder_inputs,
+                                                              padding='post', truncating='post'))
+
                 batch_question = np.array(pad_sequences(batch_question,
                                                         padding='post', truncating='post'))
                 batch_question = np.expand_dims(batch_question, axis=-1)
-                batch_outputs = pad_sequences(batch_outputs, maxlen=batch_inputs_for_text.shape[1],
-                                              padding='post', truncating='post')
-                batch_outputs = to_categorical(batch_outputs,
-                                               num_classes=len(self.word2idx.keys()))
-                yield batch_inputs_for_text, [batch_outputs, batch_question]
+
+                batch_target_outputs = pad_sequences(batch_target_outputs,
+                                                     padding='post', truncating='post')
+                batch_target_outputs = to_categorical(batch_target_outputs,
+                                                      num_classes=len(self.word2idx.keys()))
+
+                yield [batch_encoder_inputs, batch_decoder_inputs], [batch_target_outputs, batch_question]
                 start = (start + self.batch_size) % len(index)

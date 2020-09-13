@@ -9,15 +9,15 @@
 '''
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import tensorflow as tf
 import keras.backend.tensorflow_backend as KTF
 
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.4
+config.gpu_options.per_process_gpu_memory_fraction = 0.3
 session = tf.Session(config=config)
 KTF.set_session(session)
 
 from models.seq2seq import train
 
-train(model='custom_simple', batch_size=64)
+train(model='final', batch_size=64)
